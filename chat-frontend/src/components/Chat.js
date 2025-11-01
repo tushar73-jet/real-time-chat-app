@@ -10,7 +10,8 @@ const Chat = ({ token, username, onLogout }) => {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    const newSocket = io('http://localhost:3001', {
+    const socketUrl = process.env.REACT_APP_SOCKET_URL || 'http://localhost:3001';
+    const newSocket = io(socketUrl, {
       auth: { token: token }
     });
 

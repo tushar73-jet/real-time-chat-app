@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './Auth.css';
 
-const API_URL = 'http://localhost:3001/api/auth';
+const API_URL = `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/api/auth`;
 
 const Auth = ({ onLogin }) => {
   const [isLogin, setIsLogin] = useState(true);
