@@ -7,6 +7,7 @@ const Chat = ({ token, username, onLogout }) => {
   const [message, setMessage] = useState('');
   const [room, setRoom] = useState('general');
   const [socket, setSocket] = useState(null);
+  const [isConnected, setIsConnected] = useState(false);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -16,14 +17,26 @@ const Chat = ({ token, username, onLogout }) => {
     });
 
     newSocket.on('connect', () => {
+      setIsConnected(true);
       newSocket.emit('joinRoom', room);
     });
 
+    newSocket.on('disconnect', () => {
+      setIsConnected(false);
+    });
+
+    newSocket.on('connect_error', (error) => {
+      setIsConnected(false);
+      console.error('Socket connection error:', error);
+    });
+
     newSocket.on('loadHistory', (history) => {
-      setMessages(history);
+      console.log('History loaded:', history);
+      setMessages(history || []);
     });
 
     newSocket.on('chatMessage', (messageData) => {
+      console.log('Message received:', messageData);
       setMessages(prev => [...prev, messageData]);
     });
 
@@ -37,8 +50,9 @@ const Chat = ({ token, username, onLogout }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (message.trim() && socket) {
-      socket.emit('chatMessage', { room, content: message.trim() });
+    if (message.trim() && socket && socket.connected) {
+      const messageText = message.trim();
+      socket.emit('chatMessage', { room, content: messageText });
       setMessage('');
     }
   };
@@ -76,6 +90,11 @@ const Chat = ({ token, username, onLogout }) => {
       <div className="chat-main">
         <div className="chat-header">
           <h2>#{room}</h2>
+          {!isConnected && (
+            <div style={{color: 'red', fontSize: '12px'}}>
+              Not connected - Check REACT_APP_SOCKET_URL in Vercel
+            </div>
+          )}
         </div>
 
         <div className="messages-container">
@@ -84,10 +103,12 @@ const Chat = ({ token, username, onLogout }) => {
               <div key={index} className={`message ${msg.username === username ? 'own' : ''}`}>
                 <div className="message-content">
                   <div className="message-header">
-                    <span className="username">{msg.username}</span>
-                    <span className="time">{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    <span className="username">{msg.username || 'Unknown'}</span>
+                    <span className="time">
+                      {msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                    </span>
                   </div>
-                  <div className="message-text">{msg.content}</div>
+                  <div className="message-text">{msg.content || ''}</div>
                 </div>
               </div>
             ))}
