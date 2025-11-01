@@ -11,15 +11,35 @@ const authSocket = require('./src/middleware/authSocket');
 
 const app = express();
 const server = http.createServer(app);
+const allowedOrigins = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(',')
+  : ["http://localhost:3000"];
+
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
-    methods: ["GET", "POST"]
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin) || origin.includes('vercel.app')) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    methods: ["GET", "POST"],
+    credentials: true
   }
 });
 
 
-app.use(cors()); 
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin) || origin.includes('vercel.app')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+})); 
 app.use(express.json());
 
 
