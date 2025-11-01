@@ -1,12 +1,10 @@
-// src/routes/auth.js
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const prisma = require('../config/prisma'); // Import Prisma client
+const prisma = require('../config/prisma');
 
 const router = express.Router();
 
-// Register
 router.post('/register', async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -24,14 +22,13 @@ router.post('/register', async (req, res) => {
     
     res.status(201).send({ message: "User created!" });
   } catch (error) {
-    if (error.code === 'P2002') { // Prisma's unique constraint violation
+    if (error.code === 'P2002') {
       return res.status(409).send({ error: "Username already exists" });
     }
     res.status(500).send({ error: "Server error" });
   }
 });
 
-// Login
 router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;

@@ -1,4 +1,4 @@
-// server.js
+
 require('dotenv').config();
 const express = require('express');
 const http = require('http');
@@ -18,33 +18,32 @@ const io = new Server(server, {
   }
 });
 
-// --- Middleware ---
-app.use(cors()); // Use cors middleware
+
+app.use(cors()); 
 app.use(express.json());
 
-// --- Routes ---
+
 app.use('/api/auth', authRoutes);
 
-// --- Socket.io ---
 
-io.use(authSocket); // (Unchanged)
+io.use(authSocket); 
 
 io.on('connection', (socket) => {
   console.log(`User connected: ${socket.user.username} (ID: ${socket.id})`);
 
-  // Handle joining a room
+
   socket.on('joinRoom', async (room) => {
     socket.join(room);
     console.log(`${socket.user.username} joined room: ${room}`);
 
-    // Load chat history using Prisma
+
     try {
       const messages = await prisma.message.findMany({
         where: { room },
         orderBy: { createdAt: 'asc' },
-        include: { // Join with the User model
+        include: { 
           user: {
-            select: { username: true } // Only select the username
+            select: { username: true } 
           }
         }
       });
@@ -66,18 +65,17 @@ io.on('connection', (socket) => {
     const { room, content } = data;
 
     try {
-      // Save the message to MySQL using Prisma
       const msg = await prisma.message.create({
         data: {
           content: content,
           room: room,
-          userId: socket.user.id // Get user ID from authenticated socket
+          userId: socket.user.id 
         }
       });
       
       const messageData = {
         content: msg.content,
-        username: socket.user.username, // Get username from socket
+        username: socket.user.username,
         createdAt: msg.createdAt
       };
       
@@ -88,14 +86,12 @@ io.on('connection', (socket) => {
     }
   });
 
-  // Handle disconnection
   socket.on('disconnect', () => {
     console.log(`User disconnected: ${socket.user.username}`);
   });
 });
 
-// --- Start Server ---
-const PORT = process.env.PORT || 3001; // Use 3001 to avoid conflict with React
+const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

@@ -10,7 +10,6 @@ const Chat = ({ token, username, onLogout }) => {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    // Connect to Socket.io server
     const newSocket = io('http://localhost:3001', {
       auth: { token: token }
     });
@@ -53,7 +52,6 @@ const Chat = ({ token, username, onLogout }) => {
 
   return (
     <div className="chat-app">
-      {/* Sidebar */}
       <div className="sidebar">
         <div className="user-info">
           <h3>Welcome, {username}!</h3>
@@ -74,7 +72,6 @@ const Chat = ({ token, username, onLogout }) => {
         </div>
       </div>
 
-      {/* Chat Area */}
       <div className="chat-main">
         <div className="chat-header">
           <h2>#{room}</h2>

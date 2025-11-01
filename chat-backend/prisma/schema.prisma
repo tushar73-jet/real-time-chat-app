@@ -1,5 +1,3 @@
-// prisma/schema.prisma
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,9 +12,9 @@ model User {
   username      String    @unique
   password_hash String
   createdAt     DateTime  @default(now()) @map("created_at")
-  messages      Message[] // A user can have many messages
+  messages      Message[]
 
-  @@map("users") // Maps to the 'users' table
+  @@map("users")
 }
 
 model Message {
@@ -26,7 +24,7 @@ model Message {
   createdAt DateTime @default(now()) @map("created_at")
   
   user    User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId  Int  @map("user_id") // Foreign key
+  userId  Int  @map("user_id")
 
-  @@map("messages") // Maps to the 'messages' table
+  @@map("messages")
 }

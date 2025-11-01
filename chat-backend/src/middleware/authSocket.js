@@ -1,4 +1,3 @@
-// src/middleware/authSocket.js
 const jwt = require('jsonwebtoken');
 
 const authSocket = async (socket, next) => {
